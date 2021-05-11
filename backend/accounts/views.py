@@ -1,3 +1,4 @@
+import django_filters
 from django.contrib.auth import get_user_model
 from rest_framework import generics, permissions, authentication
 
@@ -36,7 +37,7 @@ class CardViewSet(viewsets.ModelViewSet):
 #     queryset = Cards.objects.all()
 #     serializer_class = CardSerializer
 #     filter_backends = [filters.SearchFilter]
-#     # filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+#     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
 #     search_fields = ['name']
 
 class CardListView(generics.ListAPIView):
@@ -44,3 +45,27 @@ class CardListView(generics.ListAPIView):
     serializer_class = CardSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
+
+
+class ListFilter(django_filters.Filter):
+    def filter(self, qs, value):
+        if value not in (None, ''):
+            integers = [int(v) for v in value.split(',')]
+            return qs.filter(**{'%s__%s' % (self.field_name, self.lookup_expr): integers})
+        return qs
+
+
+class CardIdsFilter(django_filters.FilterSet):
+    ids = ListFilter(field_name="id", lookup_expr='in')
+
+    class Meta:
+        model = Cards
+        fields = ['ids']
+
+
+class CardsIdsViewSet(viewsets.ModelViewSet):
+    queryset = Cards.objects.all()
+    serializer_class = CardSerializer
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    # filter_backends = (DjangoFilterBackend,)
+    filter_class = CardIdsFilter
