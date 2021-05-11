@@ -113,7 +113,7 @@ export default {
     },
     signUp(registrationInfo) {
       this.$axios
-        .$post('accounts/users/', registrationInfo)
+        .$post('api/accounts/users/', registrationInfo)
         .then((response) => {
           console.log('Scuccessful')
         })

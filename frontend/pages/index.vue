@@ -128,9 +128,10 @@
                 <l-tooltip>
                   <span class="d-flex flex-column">
                     <span>{{ marker.name }}</span>
-                  <span>{{ marker.email }}</span>
+<!--                  <span>{{ marker.email }}</span>-->
                   <span>{{ marker.postalAddress }}</span>
                   <span>{{ marker.phoneNumber }}</span>
+                  <span>{{ marker.emailAddress }}</span>
                     </span>
                 </l-tooltip>
               </l-marker>

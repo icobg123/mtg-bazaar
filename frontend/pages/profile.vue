@@ -28,7 +28,7 @@
 
               <strong>Wants:</strong>
               {{ loggedInUser.wants }}
-               <span v-for="card in wants_card_names">
+              <span v-for="card in wants_card_names">
 <!--                {{ // getCardName(trade_id) }}-->
                 <!--                {{ this.cards }}-->
                 {{ card.id }} : {{ card.name }} <br>
@@ -95,8 +95,14 @@ export default {
     }
   },
   mounted() {
-    this.getCardsById(this.loggedInUser.trades,'trades_card_names');
-    this.getCardsById(this.loggedInUser.wants,'wants_card_names');
+
+
+    if (Array.isArray(this.loggedInUser.trades) && this.loggedInUser.trades.length) {
+      this.getCardsById(this.loggedInUser.trades, 'trades_card_names');
+    }
+    if (Array.isArray(this.loggedInUser.want) && this.loggedInUser.wants.length) {
+      this.getCardsById(this.loggedInUser.wants, 'wants_card_names');
+    }
   }
 }
 </script>
