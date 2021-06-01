@@ -8,6 +8,7 @@ media
 
 #Database
 backend/AllPrintings.sqlite
+backend/AllPrintings**
 backend/db.sqlite3
 
 #Files
