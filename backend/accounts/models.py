@@ -9,6 +9,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 from . import managers  # we will write this file shortly
+from django.core.validators import RegexValidator
 
 
 class Cards(models.Model):
@@ -97,6 +98,11 @@ class Cards(models.Model):
     class Meta:
         managed = False
         db_table = 'cards'
+
+    def __str__(self):
+        # return str(self.id)
+        return str(self.id)
+        # return f"{self.email}'s custom account"
 
 
 class ForeignData(models.Model):
@@ -234,6 +240,31 @@ class Tokens(models.Model):
         db_table = 'tokens'
 
 
+class MtgShop(models.Model):
+    name = models.CharField(max_length=50)
+    address = models.CharField(max_length=50)
+    email = models.EmailField(_('email address'), unique=True, default="", )
+    lat = models.FloatField(max_length=10)
+    long = models.FloatField(max_length=10)
+    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$',
+                                 message="Phone number must be entered in the format: '+999999999'. Up to 15 digits "
+                                         "allowed.")
+    phone_number = models.CharField(validators=[phone_regex], max_length=17, blank=True)  # validators should be a list
+
+    def players(self):
+        players = self.customuser_set.all()
+        player_id = []
+
+        for player in players:
+            print(player.id)
+            player_id.append(player)
+        return player_id
+        # return ', '.join([player.id for player in players])
+        # return ', '.join([book.title for book in players])
+        # """Return a list of comma separated list of books by the author"""
+        # pass
+
+
 class CustomUser(AbstractUser):
     username = None
     email = models.EmailField(_('email address'), unique=True)
@@ -249,15 +280,21 @@ class CustomUser(AbstractUser):
     )
     birth_date = models.DateField(null=True, blank=True)
     pro = models.BooleanField(default=False)
-
+    # TODO: Get trades field to display a list of Trade ids
     trades = models.ManyToManyField(Cards,
+                                    through='Trades',
                                     related_name='user_trades_list',
                                     default="",
-                                    blank=True,)
+                                    blank=True, )
     wants = models.ManyToManyField(Cards,
+                                   through='Wants',
                                    related_name='user_wants_list',
                                    default="",
-                                   blank=True,)
+                                   blank=True, )
+    mtg_shops = models.ManyToManyField(MtgShop,
+                                       default="",
+                                       blank=True,
+                                       )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -265,7 +302,27 @@ class CustomUser(AbstractUser):
     objects = managers.CustomUserManager()
 
     def __str__(self):
-        return f"{self.email}'s custom account"
+        # return str(self.id)
+        return str(self.id)
+        # return f"{self.email}'s custom account"
 
 
+class Wants(models.Model):
+    card = models.ForeignKey(Cards, on_delete=models.CASCADE, related_name='card_trades_list')
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='user_trades_list')
+    count = models.IntegerField()
 
+    class Meta:
+        unique_together = ("card", "user")
+
+
+class Trades(models.Model):
+    card = models.ForeignKey(Cards, on_delete=models.CASCADE, related_name='card_wants_list')
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='user_wants_list', )
+    count = models.IntegerField()
+
+    class Meta:
+        unique_together = ("card", "user")
+
+    # def get_id(self):
+    #     return self.id

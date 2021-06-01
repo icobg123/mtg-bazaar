@@ -12,7 +12,7 @@ from . import serializers
 from rest_framework import viewsets
 from rest_framework import generics
 from rest_framework import filters
-from .serializers import CardSerializer
+from .serializers import CardSerializer, MtgShopSerializer
 
 CustomUser = get_user_model()
 
@@ -25,12 +25,6 @@ class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_object(self):
         return self.request.user
-
-
-class CardViewSet(viewsets.ModelViewSet):
-    serializer_class = CardSerializer
-    # filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
-    queryset = Cards.objects.all()
 
 
 # class CardListView(generics.ListAPIView):
@@ -47,25 +41,10 @@ class CardListView(generics.ListAPIView):
     search_fields = ['name']
 
 
-class ListFilter(django_filters.Filter):
-    def filter(self, qs, value):
-        if value not in (None, ''):
-            integers = [int(v) for v in value.split(',')]
-            return qs.filter(**{'%s__%s' % (self.field_name, self.lookup_expr): integers})
-        return qs
-
-
-class CardIdsFilter(django_filters.FilterSet):
-    ids = ListFilter(field_name="id", lookup_expr='in')
-
-    class Meta:
-        model = Cards
-        fields = ['ids']
-
-
-class CardsIdsViewSet(viewsets.ModelViewSet):
-    queryset = Cards.objects.all()
-    serializer_class = CardSerializer
-    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
-    # filter_backends = (DjangoFilterBackend,)
-    filter_class = CardIdsFilter
+class MtgShopListView(generics.ListAPIView):
+    queryset = MtgShop.objects.all()
+    serializer_class = MtgShopSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', 'address']
+# TODO: Get a list of users when searching by name?
+# TODO: Get a list of users when searching by card name
