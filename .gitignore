@@ -6,6 +6,13 @@ __pycache__
 db.sqlite3
 media
 
+#Database
+backend/AllPrintings.sqlite
+backend/db.sqlite3
+
+#Files
+backend/media/**
+
 # Backup files #
 *.bak
 
@@ -22,6 +29,7 @@ media
 .idea/**/uiDesigner.xml
 .idea/**/gradle.xml
 .idea/**/libraries
+.idea/dataSources.xml
 *.iws /out/
 
 # Python #
